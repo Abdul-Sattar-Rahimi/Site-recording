@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Store — VidSell</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="../css/style.css"/>
+</head>
+<body>
+
+<nav class="nav scrolled" id="nav">
+  <div class="nav-inner">
+    <a href="../index.html" class="logo">VidSell<span class="logo-dot">●</span></a>
+    <div class="nav-links">
+      <a href="../index.html#how" class="nav-link">How It Works</a>
+      <a href="../index.html#about" class="nav-link">About</a>
+      <a href="store.html" class="nav-link" style="color:var(--accent);">Store</a>
+    </div>
+    <div class="nav-right">
+      <div class="lang-switcher">
+        <button class="lang-btn active" data-lang="en">EN</button>
+        <button class="lang-btn" data-lang="fa">FA</button>
+        <button class="lang-btn" data-lang="ar">AR</button>
+        <button class="lang-btn" data-lang="ja">JA</button>
+        <button class="lang-btn" data-lang="tr">TR</button>
+      </div>
+      <a href="dashboard.html" class="btn-primary" style="font-size:14px;">My Dashboard</a>
+    </div>
+  </div>
+</nav>
+
+<main class="store-page">
+  <div class="container">
+    <div class="store-header">
+      <div class="section-eyebrow">Marketplace</div>
+      <h1 class="section-title">Creator Store</h1>
+      <p style="color:var(--text2);max-width:500px;">Browse videos from our creators. Each creator sets their own price.</p>
+    </div>
+
+    <!-- Filter bar -->
+    <div style="display:flex;gap:12px;margin-bottom:32px;flex-wrap:wrap;">
+      <button class="btn-ghost" id="filterAll" onclick="filterVideos('all')" style="border-color:var(--accent);color:var(--accent);">All</button>
+      <button class="btn-ghost" id="filterAvail" onclick="filterVideos('available')">Available</button>
+      <button class="btn-ghost" id="filterSold" onclick="filterVideos('sold')">Sold</button>
+    </div>
+
+    <div class="store-grid" id="storeGrid">
+      <div style="color:var(--text3);font-size:14px;padding:60px 0;text-align:center;grid-column:1/-1;">
+        <div style="font-size:32px;margin-bottom:16px;">🎬</div>
+        Loading videos…
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="../js/i18n.js"></script>
+<script src="../js/db.js"></script>
+<script>
+let allVideos = [];
+let activeFilter = 'all';
+
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    allVideos = await getAllVideos();
+    renderStore('all');
+  } catch(e) {
+    document.getElementById('storeGrid').innerHTML = '<div style="color:var(--text3);grid-column:1/-1;text-align:center;padding:60px 0;">Could not load videos. Please check your connection.</div>';
+  }
+});
+
+function filterVideos(filter) {
+  activeFilter = filter;
+  document.querySelectorAll('[id^="filter"]').forEach(b => {
+    b.style.borderColor = '';
+    b.style.color = '';
+  });
+  document.getElementById('filter' + filter.charAt(0).toUpperCase() + filter.slice(1)).style.borderColor = 'var(--accent)';
+  document.getElementById('filter' + filter.charAt(0).toUpperCase() + filter.slice(1)).style.color = 'var(--accent)';
+  renderStore(filter);
+}
+
+function renderStore(filter) {
+  const grid = document.getElementById('storeGrid');
+  let videos = allVideos;
+  if (filter === 'available') videos = allVideos.filter(v => v.status === 'available' && v.price > 0);
+  if (filter === 'sold') videos = allVideos.filter(v => v.status === 'sold');
+  // Only show priced videos in store
+  videos = videos.filter(v => v.price > 0 || v.status === 'sold');
+
+  if (!videos.length) {
+    grid.innerHTML = '<div style="color:var(--text3);font-size:14px;padding:60px 0;text-align:center;grid-column:1/-1;"><div style="font-size:32px;margin-bottom:16px;">🎬</div>No videos found.</div>';
+    return;
+  }
+
+  grid.innerHTML = videos.map(v => `
+    <div class="product-card">
+      <div class="product-thumb" style="background:var(--bg3);">
+        ${v.thumbnail_url
+          ? `<img src="${v.thumbnail_url}" alt="${v.title || 'Video'}"/>`
+          : `<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:40px;">🎬</div>`}
+        ${v.status === 'sold' ? '<div class="product-sold-badge">✅ SOLD</div>' : ''}
+      </div>
+      <div class="product-body">
+        <div class="product-title">${v.title || 'Untitled Video'}</div>
+        <div style="font-size:12px;color:var(--text3);font-family:var(--font-mono);margin-bottom:8px;">by @${v.users?.username || 'creator'}</div>
+        <div class="product-price">$${parseFloat(v.price).toFixed(2)}</div>
+        <div class="product-status ${v.status === 'sold' ? 'sold' : 'available'}">
+          ${v.status === 'sold' ? '✅ Sold' : '🔵 Available'}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+</script>
+</body>
+</html>
